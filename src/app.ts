@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
+import getNewsAPI from "./routes/getNewsAPI.js";
 
 dotenv.config();
 
@@ -25,3 +26,4 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use("/getNewsAPI", getNewsAPI);
