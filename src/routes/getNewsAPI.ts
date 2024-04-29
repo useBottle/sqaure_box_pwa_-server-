@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import cheerio from "cheerio";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 
@@ -21,11 +22,65 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         "X-Naver-Client-Secret": client_secret,
       },
     });
+
+    interface Item {
+      originallink: string;
+      link: string;
+    }
+
+    const data = response.data.items;
+
+    const articleContents = await Promise.all(
+      data.map(async (item: Item) => {
+        // 메타 데이터의 모든 이미지를 가져오려면 활성화하기.
+        // const imageUrls: string[] = [];
+
+        // Open Graph 메타데이터 이미지 크롤링
+        const fetchMetaImage = async (): Promise<string | void> => {
+          const urlSet = [item.originallink, item.link];
+          for (const url of urlSet) {
+            try {
+              const response = await axios.get(url);
+              const $ = cheerio.load(response.data);
+              const metaTags = $("meta");
+              const imagePattern = /\.(jpg|jpeg)/i;
+
+              for (const tag of metaTags) {
+                const contentValue = $(tag).attr("content");
+                if (contentValue && imagePattern.test(contentValue)) {
+                  // 메타 데이터의 모든 이미지를 가져오려면 아래 코드 활성화하고 return 문 주석처리.
+                  // imageUrls.push(contentValue);
+                  return contentValue;
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching Open Graph image from ${urlSet[0]} or ${urlSet[1]}:`, error);
+            }
+          }
+        };
+        const image = await fetchMetaImage();
+        console.log(image);
+        return {
+          ...item,
+          // imageUrls,
+          image,
+        };
+      }),
+    );
+
+    // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
-    console.log(response.data.items);
-    res.status(200).send(response.data.items);
-  } catch (error) {
-    console.error("API is not response.", error);
+    // console.log(articleContents);
+    res.status(200).send(articleContents);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      res.status(axiosError.response?.status ?? 500).send();
+      console.error("error =", axiosError.response?.status);
+    } else {
+      res.status(500).send("An unexpected error occurred");
+      console.error("Non-axios error occurred", error);
+    }
   }
 });
 
