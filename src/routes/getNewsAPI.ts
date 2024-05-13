@@ -1,7 +1,10 @@
+import { Readability } from "@mozilla/readability";
 import axios, { AxiosError } from "axios";
 import cheerio from "cheerio";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
+import { JSDOM } from "jsdom";
+import iconv from "iconv-lite";
 
 dotenv.config();
 
@@ -10,6 +13,12 @@ const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const numberOfArticles = 10;
 const wayOfSort = ["sim", "date"];
+
+const stripHtml = (html: string, document: Document): string => {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText;
+};
 
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const query = encodeURI(req.body.inputValue);
@@ -24,23 +33,43 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
     });
 
     interface Item {
+      title: string;
+      description: string;
+      pubDate: string;
       originallink: string;
       link: string;
+      imageUrls: string[];
+      articleText: string;
+      charset: string;
     }
 
     const data = response.data.items;
 
+    const dom = new JSDOM(response.data);
+    const document = dom.window.document;
+
     const articleContents = await Promise.all(
       data.map(async (item: Item) => {
-        // 메타 데이터의 모든 이미지를 가져오려면 활성화하기.
-        // const imageUrls: string[] = [];
+        const imageUrls: string[] = [];
+        // const articles: string[] = [];
+        let articleText;
+        const title = stripHtml(item.title, document);
+        const description = stripHtml(item.description, document);
+        const pubDate = stripHtml(item.pubDate, document);
+        const originallink = stripHtml(item.originallink, document);
+        const link = stripHtml(item.link, document);
 
         // Open Graph 메타데이터 이미지 크롤링
         const fetchMetaImage = async (): Promise<string | void> => {
           const urlSet = [item.originallink, item.link];
           for (const url of urlSet) {
             try {
-              const response = await axios.get(url);
+              const response = await axios.get(url, { responseType: "arraybuffer" });
+              const contentType = response.headers["content-type"];
+              // contentType에서 charset을 추출하는 코드를 보다 안전하게 처리
+              const charsetMatch = contentType ? /charset=([^;]+)/i.exec(contentType) : null;
+              let charset = charsetMatch ? charsetMatch[1].trim().toLowerCase() : "utf-8";
+
               const $ = cheerio.load(response.data);
               const metaTags = $("meta");
               const imagePattern = /\.(jpg|jpeg)/i;
@@ -48,29 +77,65 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               for (const tag of metaTags) {
                 const contentValue = $(tag).attr("content");
                 if (contentValue && imagePattern.test(contentValue)) {
-                  // 메타 데이터의 모든 이미지를 가져오려면 아래 코드 활성화하고 return 문 주석처리.
-                  // imageUrls.push(contentValue);
-                  return contentValue;
+                  imageUrls.push(contentValue);
+                }
+                if (imageUrls.length === 0) {
+                  const ogImage = $('meta[property="og:image"]').attr("content");
+                  if (ogImage) {
+                    imageUrls.push(ogImage);
+                  }
                 }
               }
+
+              const dom = new JSDOM(response.data);
+              const document = dom.window.document;
+
+              // <a> 태그 제거
+              const links = document.querySelectorAll("a");
+              links.forEach((link) => link.parentNode?.removeChild(link));
+
+              function convertEncoding(text: string, charset: string) {
+                if (charset === "EUC-KR") {
+                  return iconv.decode(Buffer.from(text, "binary"), "EUC-KR");
+                }
+                return text;
+              }
+
+              const reader = new Readability(document);
+              const article = reader.parse();
+              articleText = article
+                ? stripHtml(convertEncoding(article.textContent, item.charset || "UTF-8"), document)
+                : null;
+              // console.log(article);
+
+              // console.log(articleText);
             } catch (error) {
               console.error(`Error fetching Open Graph image from ${urlSet[0]} or ${urlSet[1]}:`, error);
             }
           }
         };
-        const image = await fetchMetaImage();
-        console.log(image);
-        return {
-          ...item,
-          // imageUrls,
-          image,
+
+        await fetchMetaImage();
+
+        const textData = {
+          title: title,
+          description: description,
+          pubDate: pubDate,
+          originallink: originallink,
+          link: link,
+          imageUrls: imageUrls,
+          articleText: articleText,
+          charset: item.charset || "UTF-8",
         };
+
+        return textData;
       }),
     );
 
     // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
-    // console.log(articleContents);
+
+    console.log(articleContents);
     res.status(200).send(articleContents);
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
