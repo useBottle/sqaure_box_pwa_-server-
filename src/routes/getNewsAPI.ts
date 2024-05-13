@@ -65,10 +65,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
           for (const url of urlSet) {
             try {
               const response = await axios.get(url, { responseType: "arraybuffer" });
-              const contentType = response.headers["content-type"];
-              // contentType에서 charset을 추출하는 코드를 보다 안전하게 처리
-              const charsetMatch = contentType ? /charset=([^;]+)/i.exec(contentType) : null;
-              let charset = charsetMatch ? charsetMatch[1].trim().toLowerCase() : "utf-8";
 
               const $ = cheerio.load(response.data);
               const metaTags = $("meta");
@@ -103,12 +99,10 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
               const reader = new Readability(document);
               const article = reader.parse();
-              articleText = article
+              const encodedText = article
                 ? stripHtml(convertEncoding(article.textContent, item.charset || "UTF-8"), document)
                 : null;
-              // console.log(article);
-
-              // console.log(articleText);
+              articleText = encodedText;
             } catch (error) {
               console.error(`Error fetching Open Graph image from ${urlSet[0]} or ${urlSet[1]}:`, error);
             }
@@ -127,15 +121,13 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
           articleText: articleText,
           charset: item.charset || "UTF-8",
         };
-
+        console.log(textData.articleText);
         return textData;
       }),
     );
 
     // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
-
-    console.log(articleContents);
     res.status(200).send(articleContents);
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
