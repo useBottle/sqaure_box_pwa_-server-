@@ -50,12 +50,29 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
     const articleContents = await Promise.all(
       data.map(async (item: Item) => {
+        // 날짜 포맷 변경하기
+        const dateString = item.pubDate;
+        const date = new Date(dateString);
+
+        function formatDate(d: Date): string {
+          const year = d.getFullYear();
+          const month = d.getMonth() + 1;
+          const day = d.getDate();
+          const hours = d.getHours();
+          const minutes = d.getMinutes();
+
+          const pad = (num: number) => num.toString().padStart(2, "0");
+
+          return `${year}년 ${pad(month)}월 ${pad(day)}일 ${pad(hours)}:${pad(minutes)}`;
+        }
+        const changedDate = formatDate(date);
+
         const imageUrls: string[] = [];
         // const articles: string[] = [];
         let articleText;
         const title = stripHtml(item.title, document);
         const description = stripHtml(item.description, document);
-        const pubDate = stripHtml(item.pubDate, document);
+        const pubDate = stripHtml(changedDate, document);
         const originallink = stripHtml(item.originallink, document);
         const link = stripHtml(item.link, document);
 
@@ -86,9 +103,11 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               const dom = new JSDOM(response.data);
               const document = dom.window.document;
 
-              // <a> 태그 제거
-              const links = document.querySelectorAll("a");
-              links.forEach((link) => link.parentNode?.removeChild(link));
+              // 각종 불필요한 태그 제거
+              const tagToRemove = document.querySelectorAll(
+                "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, , table, figcaption, .reveal-container, .date-repoter, .copy_info",
+              );
+              tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
 
               function convertEncoding(text: string, charset: string) {
                 if (charset === "EUC-KR") {
