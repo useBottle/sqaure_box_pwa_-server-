@@ -43,6 +43,7 @@
     "@types/mongodb": "^4.0.7",
     "@types/morgan": "^1.9.9",
     "@types/node-fetch": "^2.6.11",
+    "@types/socket.io": "^3.0.2",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
@@ -52,6 +53,7 @@
     "jsdom": "^24.0.0",
     "mongodb": "^6.5.0",
     "morgan": "^1.10.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "socket.io": "^4.7.5"
   }
 }
