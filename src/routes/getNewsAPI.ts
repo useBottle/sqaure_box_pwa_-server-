@@ -14,6 +14,7 @@ const client_secret = process.env.CLIENT_SECRET;
 const numberOfArticles = 10;
 const wayOfSort = ["sim", "date"];
 
+// HTML 태그를 제거하고 순수한 텍스트로 정제.
 const stripHtml = (html: string, document: Document): string => {
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
@@ -45,6 +46,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
     const data = response.data.items;
 
+    // 네이버 뉴스 API 에서 받아온 뉴스 기사들의 데이터를 DOM 의 형태로 처리.
     const dom = new JSDOM(response.data);
     const document = dom.window.document;
 
@@ -68,7 +70,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         const changedDate = formatDate(date);
 
         const imageUrls: string[] = [];
-        // const articles: string[] = [];
         let articleText;
         const title = stripHtml(item.title, document);
         const description = stripHtml(item.description, document);
@@ -100,6 +101,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
                 }
               }
 
+              // 해당 뉴스 기사 페이지의 데이터를 DOM 의 형태로 처리.
               const dom = new JSDOM(response.data);
               const document = dom.window.document;
 
@@ -109,6 +111,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               );
               tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
 
+              // 텍스트의 인코딩 포맷이 EUC-KR 인 경우, UTF-8 로 인코딩.
               function convertEncoding(text: string, charset: string) {
                 if (charset === "EUC-KR") {
                   return iconv.decode(Buffer.from(text, "binary"), "EUC-KR");
