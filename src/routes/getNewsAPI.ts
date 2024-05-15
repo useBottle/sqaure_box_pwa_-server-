@@ -143,7 +143,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
           articleText: articleText,
           charset: item.charset || "UTF-8",
         };
-        console.log(textData.articleText);
         return textData;
       }),
     );
