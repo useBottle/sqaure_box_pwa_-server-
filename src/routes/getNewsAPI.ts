@@ -86,18 +86,13 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
               const $ = cheerio.load(response.data);
               const metaTags = $("meta");
-              const imagePattern = /\.(jpg|jpeg)/i;
+              const imagePattern = /\.(jpg|jpeg|gif)/i;
 
               for (const tag of metaTags) {
                 const contentValue = $(tag).attr("content");
+                // meta 태그의 content 속성의 값 중에 imagePattern 에 해당하는 값을 imageUrls 배열에 푸시.
                 if (contentValue && imagePattern.test(contentValue)) {
                   imageUrls.push(contentValue);
-                }
-                if (imageUrls.length === 0) {
-                  const ogImage = $('meta[property="og:image"]').attr("content");
-                  if (ogImage) {
-                    imageUrls.push(ogImage);
-                  }
                 }
               }
 
