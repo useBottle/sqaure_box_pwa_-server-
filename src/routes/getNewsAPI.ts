@@ -11,8 +11,8 @@ dotenv.config();
 const router = express.Router();
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const numberOfArticles = 10;
-const wayOfSort = ["sim", "date"];
+const numberOfArticles = 10; // 최댓값 = 100
+const wayOfSort = ["sim", "date"]; // 검색 결과 정렬 방법 선택
 
 // HTML 태그를 제거하고 순수한 텍스트로 정제.
 const stripHtml = (html: string, document: Document): string => {
@@ -21,6 +21,7 @@ const stripHtml = (html: string, document: Document): string => {
   return tempDiv.textContent || tempDiv.innerText;
 };
 
+// 네이버 뉴스 검색 API 하루 호출 한도 = 25,000회
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const query = encodeURI(req.body.inputValue);
   const api_url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${numberOfArticles}&start=1&sort=${wayOfSort[0]}`;
