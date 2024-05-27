@@ -11,7 +11,7 @@ dotenv.config();
 const router = express.Router();
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const numberOfArticles = 10; // 최댓값 = 100
+const numberOfArticles = 10; // 불러올 뉴스 기사 수량 최댓값 = 100
 const wayOfSort = ["sim", "date"]; // 검색 결과 정렬 방법 선택
 
 // HTML 태그를 제거하고 순수한 텍스트로 정제.
@@ -42,7 +42,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
       link: string;
       imageUrls: string[];
       articleText: string;
-      charset: string;
+      charset?: string;
     }
 
     const data = response.data.items;
@@ -85,9 +85,18 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             try {
               const response = await axios.get(url, { responseType: "arraybuffer" });
 
+              const contentType = response.headers["content-type"];
+              let charset = "UTF-8"; // 기본값으로 UTF-8 설정
+              if (contentType) {
+                const match = contentType.match(/charset=([^;]*)/);
+                if (match) {
+                  charset = match[1];
+                }
+              }
+
               const $ = cheerio.load(response.data);
               const metaTags = $("meta");
-              const imagePattern = /\.(jpg|jpeg|gif)/i;
+              const imagePattern = /\.(jpg|jpeg|gif|png)/i;
 
               for (const tag of metaTags) {
                 const contentValue = $(tag).attr("content");
@@ -109,7 +118,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
               // 텍스트의 인코딩 포맷이 EUC-KR 인 경우, UTF-8 로 인코딩.
               function convertEncoding(text: string, charset: string) {
-                if (charset === "EUC-KR") {
+                if (charset.toUpperCase() === "EUC-KR") {
                   return iconv.decode(Buffer.from(text, "binary"), "EUC-KR");
                 }
                 return text;
@@ -118,7 +127,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               const reader = new Readability(document);
               const article = reader.parse();
               const encodedText = article
-                ? stripHtml(convertEncoding(article.textContent, item.charset || "UTF-8"), document)
+                ? stripHtml(convertEncoding(article.textContent, charset || "UTF-8"), document)
                 : null;
               articleText = encodedText;
             } catch (error) {
@@ -142,6 +151,8 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         return textData;
       }),
     );
+
+    console.log(articleContents);
 
     // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
