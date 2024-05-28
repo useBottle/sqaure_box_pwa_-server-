@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "custom_board_pwa_server",
+  "name": "square_box_pwa_server",
   "version": "1.0.0",
   "description": "Node.js, Express server for Custom Board PWA Client",
   "main": "dist/app.js",

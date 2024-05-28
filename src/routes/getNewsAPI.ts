@@ -152,8 +152,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
       }),
     );
 
-    console.log(articleContents);
-
     // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     res.status(200).send(articleContents);
