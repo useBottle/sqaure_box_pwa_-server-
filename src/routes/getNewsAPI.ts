@@ -11,17 +11,15 @@ dotenv.config();
 const router = express.Router();
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const numberOfArticles = 10; // 불러올 뉴스 기사 수량 최댓값 = 100
-const wayOfSort = ["sim", "date"]; // 검색 결과 정렬 방법 선택
+const numberOfArticles = 10;
+const wayOfSort = ["sim", "date"];
 
-// HTML 태그를 제거하고 순수한 텍스트로 정제.
 const stripHtml = (html: string, document: Document): string => {
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
   return tempDiv.textContent || tempDiv.innerText;
 };
 
-// 네이버 뉴스 검색 API 하루 호출 한도 = 25,000회
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const query = encodeURI(req.body.inputValue);
   const api_url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${numberOfArticles}&start=1&sort=${wayOfSort[0]}`;
@@ -47,13 +45,11 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
     const data = response.data.items;
 
-    // 네이버 뉴스 API 에서 받아온 뉴스 기사들의 데이터를 DOM 의 형태로 처리.
     const dom = new JSDOM(response.data);
     const document = dom.window.document;
 
     const articleContents = await Promise.all(
       data.map(async (item: Item) => {
-        // 날짜 포맷 변경하기
         const dateString = item.pubDate;
         const date = new Date(dateString);
 
@@ -63,9 +59,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
           const day = d.getDate();
           const hours = d.getHours();
           const minutes = d.getMinutes();
-
           const pad = (num: number) => num.toString().padStart(2, "0");
-
           return `${year}년 ${pad(month)}월 ${pad(day)}일 ${pad(hours)}:${pad(minutes)}`;
         }
         const changedDate = formatDate(date);
@@ -78,81 +72,75 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         const originallink = stripHtml(item.originallink, document);
         const link = stripHtml(item.link, document);
 
-        // Open Graph 메타데이터 이미지 크롤링
-        const fetchMetaImage = async (): Promise<string | void> => {
-          const urlSet = [item.originallink, item.link];
-          for (const url of urlSet) {
-            try {
-              const response = await axios.get(url, { responseType: "arraybuffer" });
-
-              const contentType = response.headers["content-type"];
-              let charset = "UTF-8"; // 기본값으로 UTF-8 설정
-              if (contentType) {
-                const match = contentType.match(/charset=([^;]*)/);
-                if (match) {
-                  charset = match[1];
-                }
+        const fetchData = async (url: string): Promise<string | void> => {
+          try {
+            const response = await axios.get(url, { responseType: "arraybuffer" });
+            const contentType = response.headers["content-type"];
+            let charset = "UTF-8";
+            if (contentType) {
+              const match = contentType.match(/charset=([^;]*)/);
+              if (match) {
+                charset = match[1];
               }
-
-              const $ = cheerio.load(response.data);
-              const metaTags = $("meta");
-              const imagePattern = /\.(jpg|jpeg|gif|png)/i;
-
-              for (const tag of metaTags) {
-                const contentValue = $(tag).attr("content");
-                // meta 태그의 content 속성의 값 중에 imagePattern 에 해당하는 값을 imageUrls 배열에 푸시.
-                if (contentValue && imagePattern.test(contentValue)) {
-                  imageUrls.push(contentValue);
-                }
-              }
-
-              // 해당 뉴스 기사 페이지의 데이터를 DOM 의 형태로 처리.
-              const dom = new JSDOM(response.data);
-              const document = dom.window.document;
-
-              // 각종 불필요한 태그 제거
-              const tagToRemove = document.querySelectorAll(
-                "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, , table, figcaption, .reveal-container, .date-repoter, .copy_info",
-              );
-              tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
-
-              // 텍스트의 인코딩 포맷이 EUC-KR 인 경우, UTF-8 로 인코딩.
-              function convertEncoding(text: string, charset: string) {
-                if (charset.toUpperCase() === "EUC-KR") {
-                  return iconv.decode(Buffer.from(text, "binary"), "EUC-KR");
-                }
-                return text;
-              }
-
-              const reader = new Readability(document);
-              const article = reader.parse();
-              const encodedText = article
-                ? stripHtml(convertEncoding(article.textContent, charset || "UTF-8"), document)
-                : null;
-              articleText = encodedText !== null && encodedText;
-            } catch (error) {
-              console.error(`Error fetching Open Graph image from ${urlSet[0]} or ${urlSet[1]}:`, error);
             }
+
+            const dataBuffer = Buffer.from(response.data, "binary");
+            let decodedData = iconv.decode(dataBuffer, charset);
+
+            // 한글이 깨졌는지 확인하는 정규식
+            const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+
+            if (!koreanRegex.test(decodedData)) {
+              decodedData = iconv.decode(dataBuffer, "euc-kr");
+            }
+
+            const $ = cheerio.load(decodedData);
+            const metaTags = $("meta");
+            const imagePattern = /\.(jpg|jpeg|gif|png)/i;
+
+            metaTags.each((_, tag) => {
+              const contentValue = $(tag).attr("content");
+              if (contentValue && imagePattern.test(contentValue)) {
+                imageUrls.push(contentValue);
+              }
+            });
+
+            const dom = new JSDOM(decodedData);
+            const document = dom.window.document;
+
+            const tagToRemove = document.querySelectorAll(
+              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info",
+            );
+            tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
+
+            const reader = new Readability(document);
+            const article = reader.parse();
+            const encodedText = article ? stripHtml(article.textContent, document) : null;
+            articleText = encodedText !== null && encodedText;
+          } catch (error) {
+            console.error(`Error fetching Open Graph image or Text from ${url}:`, error);
           }
         };
 
-        await fetchMetaImage();
+        for (const url of [item.originallink, item.link]) {
+          await fetchData(url);
+          if (imageUrls.length > 0) break;
+        }
 
         const textData = {
-          title: title,
-          description: description,
-          pubDate: pubDate,
-          originallink: originallink,
-          link: link,
-          imageUrls: imageUrls,
-          articleText: articleText,
+          title,
+          description,
+          pubDate,
+          originallink,
+          link,
+          imageUrls,
+          articleText,
           charset: item.charset || "UTF-8",
         };
         return textData;
       }),
     );
 
-    // 응답 데이터의 타입과 문자 인코딩 방식 명시
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     res.status(200).send(articleContents);
   } catch (error: unknown) {
