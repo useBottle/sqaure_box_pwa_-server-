@@ -129,7 +129,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               const encodedText = article
                 ? stripHtml(convertEncoding(article.textContent, charset || "UTF-8"), document)
                 : null;
-              articleText = encodedText;
+              articleText = encodedText !== null && encodedText;
             } catch (error) {
               console.error(`Error fetching Open Graph image from ${urlSet[0]} or ${urlSet[1]}:`, error);
             }
