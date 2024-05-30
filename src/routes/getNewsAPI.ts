@@ -5,12 +5,13 @@ import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import { JSDOM } from "jsdom";
 import iconv from "iconv-lite";
+import { Item } from "../types/types.js";
 
 dotenv.config();
 
 const router = express.Router();
-const client_id = process.env.CLIENT_ID;
-const client_secret = process.env.CLIENT_SECRET;
+const client_id = process.env.NAVER_API_CLIENT_ID;
+const client_secret = process.env.NAVER_API_CLIENT_SECRET;
 const numberOfArticles = 10;
 const wayOfSort = ["sim", "date"];
 
@@ -31,17 +32,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         "X-Naver-Client-Secret": client_secret,
       },
     });
-
-    interface Item {
-      title: string;
-      description: string;
-      pubDate: string;
-      originallink: string;
-      link: string;
-      imageUrls: string[];
-      articleText: string;
-      charset?: string;
-    }
 
     const data = response.data.items;
 
@@ -98,7 +88,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const metaTags = $("meta");
             const imagePattern = /\.(jpg|jpeg|gif|png)/i;
 
-            metaTags.each((_, tag) => {
+            metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
               if (contentValue && imagePattern.test(contentValue)) {
                 imageUrls.push(contentValue);

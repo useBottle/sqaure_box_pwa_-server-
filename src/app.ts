@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import getNewsAPI from "./routes/getNewsAPI.js";
-import getKeyword from "./routes/getKeyword.js";
+import getKeywordsAPI from "./routes/getKeywordsAPI.js";
+import getYoutubeAPI from "./routes/getYoutubeAPI.js";
 
 dotenv.config();
 
@@ -23,4 +24,5 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use("/getNewsAPI", getNewsAPI);
-app.use("/getKeyword", getKeyword);
+app.use("/getKeywordsAPI", getKeywordsAPI);
+app.use("/getYoutubeAPI", getYoutubeAPI);
