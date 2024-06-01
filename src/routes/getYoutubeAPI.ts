@@ -10,7 +10,6 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1시간 캐시
 
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const { inputValue } = req.body;
-  console.log("inputValue :" + inputValue);
 
   // 캐시 체크. 동일한 검색어로 검색하면 캐시데이터 보냄.
   if (cache[inputValue] && Date.now() - cache[inputValue].timestamp < CACHE_DURATION) {
