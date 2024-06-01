@@ -23,6 +23,29 @@ const stripHtml = (html: string, document: Document): string => {
   return tempDiv.textContent || tempDiv.innerText;
 };
 
+const cleanText = (text: string): string | void => {
+  try {
+    // 빈 줄을 기준으로 텍스트를 분할
+    let sections = text.split(/\n\s*\n/);
+
+    // 20자 이하의 섹션 제거
+    sections = sections.filter((section) => section.trim().length > 20);
+
+    // 모든 섹션을 하나의 문자열로 병합하고, 두 줄 이상의 빈 줄을 하나로 통일
+    const pressedText = sections.join("\n\n").replace(/\n{3,}/g, "\n\n");
+
+    // "다." 문자를 기준으로 줄 바꿈 삽입하여 문단 나누기.
+    const addEmptyLine = pressedText.replace(/다\.\s*(?=\S)/g, "다.\n\n");
+
+    // 텍스트 전문의 맨 앞과 뒤의 공백 모두 제거.
+    const removeSpaces = addEmptyLine.trim();
+
+    return removeSpaces;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const { inputValue } = req.body;
 
@@ -80,7 +103,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             if (contentType) {
               const match = contentType.match(/charset=([^;]*)/);
               if (match) {
-                charset = match[1];
+                charset = match[1].toUpperCase();
               }
             }
 
@@ -115,7 +138,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
             const reader = new Readability(document);
             const article = reader.parse();
-            const encodedText = article ? stripHtml(article.textContent, document) : null;
+            const encodedText = article ? cleanText(stripHtml(article.textContent, document)) : null;
             articleText = encodedText !== null && encodedText;
           } catch (error) {
             console.error(`Error fetching Open Graph image or Text from ${url}:`, error);
