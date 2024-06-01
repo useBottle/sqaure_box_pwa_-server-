@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/", async (req: Request, res: Response): Promise<void> => {
   try {
-    const response = await axios.get(process.env.KEYWORDS_URL);
+    const response = await axios.get(process.env.KEYWORDS_API_URL);
     const result = response.data;
     res.status(200).send(result);
   } catch (error: unknown) {
