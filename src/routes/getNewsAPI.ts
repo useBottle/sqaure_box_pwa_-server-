@@ -100,6 +100,8 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const response = await axios.get(url, { responseType: "arraybuffer" });
             const contentType = response.headers["content-type"];
             let charset = "UTF-8";
+
+            // conetenetType 에 따라 문서에 적용된 인코딩 방식을 charset 에 할당.
             if (contentType === "text/html; charset=UTF-8" || contentType === "text/html; charset=utf-8") {
               charset = "UTF-8";
             } else if (
@@ -110,6 +112,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               charset = "EUC-KR";
             }
 
+            // 문서에 지정된 인코딩 방식에 따라 iconv 로 디코딩.
             const dataBuffer = Buffer.from(response.data, "binary");
             const decodedData = iconv.decode(dataBuffer, charset);
 
@@ -120,6 +123,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
               if (contentValue && imagePattern.test(contentValue)) {
+                // 이미지 경로를 절대경로로 변경.
                 const absoluteUrl = new URL(contentValue, item.originallink).toString();
                 imageUrls.push(absoluteUrl);
               }
