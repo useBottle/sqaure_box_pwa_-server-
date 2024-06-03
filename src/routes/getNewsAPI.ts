@@ -100,31 +100,28 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const response = await axios.get(url, { responseType: "arraybuffer" });
             const contentType = response.headers["content-type"];
             let charset = "UTF-8";
-            if (contentType) {
-              const match = contentType.match(/charset=([^;]*)/);
-              if (match) {
-                charset = match[1].toUpperCase();
-              }
+            if (contentType === "text/html; charset=UTF-8" || contentType === "text/html; charset=utf-8") {
+              charset = "UTF-8";
+            } else if (
+              contentType === "text/html" ||
+              contentType === "text/html; charset=euc_kr" ||
+              contentType === "text/html; charset=euc-kr"
+            ) {
+              charset = "EUC-KR";
             }
 
             const dataBuffer = Buffer.from(response.data, "binary");
-            let decodedData = iconv.decode(dataBuffer, charset);
+            const decodedData = iconv.decode(dataBuffer, charset);
 
-            // 한글이 깨졌는지 확인하는 정규식
-            const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-
-            if (!koreanRegex.test(decodedData)) {
-              decodedData = iconv.decode(dataBuffer, "euc-kr");
-            }
-
-            const $ = cheerio.load(decodedData);
+            const $ = cheerio.load(decodedData as string);
             const metaTags = $("meta");
             const imagePattern = /\.(jpg|jpeg|gif|png)/i;
 
             metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
               if (contentValue && imagePattern.test(contentValue)) {
-                imageUrls.push(contentValue);
+                const absoluteUrl = new URL(contentValue, item.originallink).toString();
+                imageUrls.push(absoluteUrl);
               }
             });
 
@@ -132,7 +129,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const document = dom.window.document;
 
             const tagToRemove = document.querySelectorAll(
-              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info",
+              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info, .reaction_btn_wrap, .option_group, .v_topimg_wrap, .divtext2, .inner-subtitle, .news_write_info_group",
             );
             tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
 
@@ -163,6 +160,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         return textData;
       }),
     );
+
     // 캐시에 데이터 저장
     cache[inputValue] = {
       data: articleContents,
