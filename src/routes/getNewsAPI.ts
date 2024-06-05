@@ -137,7 +137,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const document = dom.window.document;
 
             const tagToRemove = document.querySelectorAll(
-              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info, .reaction_btn_wrap, .option_group, .v_topimg_wrap, .divtext2, .inner-subtitle, .news_write_info_group",
+              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info, .reaction_btn_wrap, .option_group, .v_topimg_wrap, .divtext2, .inner-subtitle, .news_write_info_group, .photojournal",
             );
             tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
 
