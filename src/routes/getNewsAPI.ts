@@ -102,7 +102,11 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             let charset = "UTF-8";
 
             // conetenetType 에 따라 문서에 적용된 인코딩 방식을 charset 에 할당.
-            if (contentType === "text/html; charset=UTF-8" || contentType === "text/html; charset=utf-8") {
+            if (
+              contentType === "text/html" ||
+              contentType === "text/html; charset=UTF-8" ||
+              contentType === "text/html; charset=utf-8"
+            ) {
               charset = "UTF-8";
             } else if (
               contentType === "text/html" ||
