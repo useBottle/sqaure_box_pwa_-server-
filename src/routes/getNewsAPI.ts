@@ -116,16 +116,23 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
               charset = "EUC-KR";
             }
 
+            const $ = cheerio.load(response.data as string);
+            const metaTags = $("meta");
+            const metaCharset = $("meta[charset]").attr("charset");
+
+            if (metaCharset) {
+              charset = metaCharset;
+            }
+
             // 문서에 지정된 인코딩 방식에 따라 iconv 로 디코딩.
             const dataBuffer = Buffer.from(response.data, "binary");
             const decodedData = iconv.decode(dataBuffer, charset);
 
-            const $ = cheerio.load(decodedData as string);
-            const metaTags = $("meta");
             const imagePattern = /\.(jpg|jpeg|gif|png)/i;
 
             metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
+
               if (contentValue && imagePattern.test(contentValue)) {
                 // 이미지 경로를 절대경로로 변경.
                 const absoluteUrl = new URL(contentValue, item.originallink).toString();
