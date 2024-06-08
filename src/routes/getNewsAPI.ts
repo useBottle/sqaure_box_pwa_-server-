@@ -100,12 +100,27 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const response = await axios.get(url, { responseType: "arraybuffer" });
             const contentType = response.headers["content-type"];
             let charset = "UTF-8";
-            console.log(contentType);
+            // console.log(contentType, item.originallink);
 
             // conetenetType 에 따라 문서에 적용된 인코딩 방식을 charset 에 할당.
-            if (["text/html", "text/html; charset=utf-8", "text/html; charset=UTF-8"].includes(contentType)) {
+            if (
+              [
+                "text/html; charset=utf-8",
+                "text/html; charset=utf_8",
+                "text/html; charset=UTF_8",
+                "text/html; charset=UTF-8",
+              ].includes(contentType)
+            ) {
               charset = "UTF-8";
-            } else if (["text/html", "text/html; charset=euc_kr", "text/html; charset=EUC-KR"].includes(contentType)) {
+            } else if (
+              [
+                "text/html",
+                "text/html; charset=euc_kr",
+                "text/html; charset=euc-kr",
+                "text/html; charset=EUC_KR",
+                "text/html; charset=EUC-KR",
+              ].includes(contentType)
+            ) {
               charset = "EUC-KR";
             }
 
@@ -125,7 +140,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
             metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
-
               if (contentValue && imagePattern.test(contentValue)) {
                 // 이미지 경로를 절대경로로 변경.
                 const absoluteUrl = new URL(contentValue, item.originallink).toString();
