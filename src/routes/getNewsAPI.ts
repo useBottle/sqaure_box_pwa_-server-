@@ -10,8 +10,8 @@ import { Item } from "../types/types.js";
 dotenv.config();
 
 const router = express.Router();
-const cache: { [key: string]: { data: string[]; timestamp: number } } = {};
-const CACHE_DURATION = 60 * 60 * 1000; // 1시간 캐시
+// const cache: { [key: string]: { data: string[]; timestamp: number } } = {};
+// const CACHE_DURATION = 60 * 60 * 1000; // 1시간 캐시
 const client_id = process.env.NAVER_API_CLIENT_ID;
 const client_secret = process.env.NAVER_API_CLIENT_SECRET;
 const numberOfArticles = 10;
@@ -49,11 +49,11 @@ const cleanText = (text: string): string | void => {
 router.put("/", async (req: Request, res: Response): Promise<void> => {
   const { inputValue } = req.body;
 
-  // 캐시 체크. 동일한 검색어로 검색하면 캐시데이터 보냄.
-  if (cache[inputValue] && Date.now() - cache[inputValue].timestamp < CACHE_DURATION) {
-    res.status(200).send(cache[inputValue].data);
-    return;
-  }
+  // // 캐시 체크. 동일한 검색어로 검색하면 캐시데이터 보냄.
+  // if (cache[inputValue] && Date.now() - cache[inputValue].timestamp < CACHE_DURATION) {
+  //   res.status(200).send(cache[inputValue].data);
+  //   return;
+  // }
 
   const query = encodeURI(req.body.inputValue);
   const api_url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${numberOfArticles}&start=1&sort=${wayOfSort[0]}`;
@@ -100,19 +100,12 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const response = await axios.get(url, { responseType: "arraybuffer" });
             const contentType = response.headers["content-type"];
             let charset = "UTF-8";
+            console.log(contentType);
 
             // conetenetType 에 따라 문서에 적용된 인코딩 방식을 charset 에 할당.
-            if (
-              contentType === "text/html" ||
-              contentType === "text/html; charset=UTF-8" ||
-              contentType === "text/html; charset=utf-8"
-            ) {
+            if (["text/html", "text/html; charset=utf-8", "text/html; charset=UTF-8"].includes(contentType)) {
               charset = "UTF-8";
-            } else if (
-              contentType === "text/html" ||
-              contentType === "text/html; charset=euc_kr" ||
-              contentType === "text/html; charset=euc-kr"
-            ) {
+            } else if (["text/html", "text/html; charset=euc_kr", "text/html; charset=EUC-KR"].includes(contentType)) {
               charset = "EUC-KR";
             }
 
@@ -176,11 +169,11 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
       }),
     );
 
-    // 캐시에 데이터 저장
-    cache[inputValue] = {
-      data: articleContents,
-      timestamp: Date.now(),
-    };
+    // // 캐시에 데이터 저장
+    // cache[inputValue] = {
+    //   data: articleContents,
+    //   timestamp: Date.now(),
+    // };
 
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     res.status(200).send(articleContents);
