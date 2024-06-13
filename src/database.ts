@@ -10,10 +10,10 @@ let connectDB: Promise<typeof mongoose>;
 
 if (process.env.NODE_ENV === "development") {
   if (!globalThis._mongoose) {
-    globalThis._mongoose = mongoose.connect(uri);
+    globalThis._mongoose = mongoose.connect(uri, { dbName: "Square_Box" });
   }
   connectDB = globalThis._mongoose;
 } else {
-  connectDB = mongoose.connect(uri);
+  connectDB = mongoose.connect(uri, { dbName: "Square_Box" });
 }
 export { connectDB };

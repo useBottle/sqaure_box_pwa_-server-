@@ -6,6 +6,7 @@ import getNewsAPI from "./routes/getNewsAPI.js";
 import getKeywordsAPI from "./routes/getKeywordsAPI.js";
 import getYoutubeAPI from "./routes/getYoutubeAPI.js";
 import signUp from "./routes/signUp.js";
+import idCheck from "./routes/idCheck.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/getNewsAPI", getNewsAPI);
 app.use("/getKeywordsAPI", getKeywordsAPI);
 app.use("/getYoutubeAPI", getYoutubeAPI);
 app.use("/signup", signUp);
+app.use("/idcheck", idCheck);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);

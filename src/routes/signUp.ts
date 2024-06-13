@@ -13,11 +13,11 @@ router.post("/", async (req: Request, res: Response): Promise<Response> => {
   const passwordValid = passwordPattern.test(passwordValue);
 
   if (!idValue || !idValid) {
-    return res.status(500).json("ID is empty or invalid.");
+    return res.status(400).json("ID is empty or invalid.");
   }
 
   if (!passwordValue || !passwordValid) {
-    return res.status(500).json("Password is empty or invalid.");
+    return res.status(400).json("Password is empty or invalid.");
   }
 
   const hashedPassword = await bcrypt.hash(passwordValue, 10);
@@ -31,7 +31,9 @@ router.post("/", async (req: Request, res: Response): Promise<Response> => {
     await connectDB;
     const userInfo = await User.findOne({ id: user.id });
 
-    if (userInfo) {
+    userInfo && console.log(userInfo.id);
+
+    if (userInfo && userInfo.id) {
       console.log("ID is already exist.");
       return res.status(409).json("ID is already exist.");
     }
