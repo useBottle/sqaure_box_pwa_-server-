@@ -6,5 +6,6 @@ declare namespace NodeJS {
     NAVER_API_CLIENT_SECRET: string;
     KEYWORDS_API_URL: string;
     YOUTUBE_API_URL: string;
+    MONGODB_URI: string;
   }
 }
