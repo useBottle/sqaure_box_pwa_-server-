@@ -1,7 +1,7 @@
-import axios, { AxiosError } from "axios";
 import express, { Request, Response } from "express";
 import { connectDB } from "../database.js";
 import bcrypt from "bcrypt";
+import User from "../models/user.js";
 
 const router = express.Router();
 
@@ -12,37 +12,34 @@ router.post("/", async (req: Request, res: Response): Promise<Response> => {
   const idValid = idPattern.test(idValue);
   const passwordValid = passwordPattern.test(passwordValue);
 
-  const user = {
-    id: "",
-    password: "",
-  };
-
-  if (idValue && idValid) {
-    user.id = idValue;
-  } else if (!idValue || !idValid) {
+  if (!idValue || !idValid) {
     return res.status(500).json("ID is empty or invalid.");
   }
 
-  if (passwordValue && passwordValid) {
-    const hashedPassword = await bcrypt.hash(passwordValue, 10);
-    user.password = hashedPassword;
-  } else if (!passwordValue || !passwordValid) {
+  if (!passwordValue || !passwordValid) {
     return res.status(500).json("Password is empty or invalid.");
   }
 
+  const hashedPassword = await bcrypt.hash(passwordValue, 10);
+
+  const user = new User({
+    id: idValue,
+    password: hashedPassword,
+  });
+
   try {
-    const db = (await connectDB).db("Square_Board");
-    const result = db.collection("users").insertOne(user);
+    await connectDB;
+    const userInfo = await User.findOne({ id: user.id });
+
+    if (userInfo) {
+      console.log("ID is already exist.");
+      return res.status(409).json("ID is already exist.");
+    }
+    const result = await user.save();
     return res.status(200).json(result);
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      console.error("error =", axiosError.response?.status);
-      return res.status(axiosError.response?.status ?? 500).send();
-    } else {
-      console.error("Non-axios error occurred", error);
-      return res.status(500).send("An unexpected error occurred");
-    }
+    console.error("Error occurred", error);
+    return res.status(500).send("An unexpected error occurred");
   }
 });
 

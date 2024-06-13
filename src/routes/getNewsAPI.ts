@@ -1,5 +1,5 @@
 import { Readability } from "@mozilla/readability";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import cheerio from "cheerio";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
@@ -191,14 +191,8 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
     res.setHeader("Content-Type", "application/json;charset=utf-8");
     res.status(200).send(articleContents);
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      res.status(axiosError.response?.status ?? 500).send();
-      console.error("error =", axiosError.response?.status);
-    } else {
-      res.status(500).send("An unexpected error occurred");
-      console.error("Non-axios error occurred", error);
-    }
+    console.error("Error occurred", error);
+    res.status(500).send("An unexpected error occurred");
   }
 });
 

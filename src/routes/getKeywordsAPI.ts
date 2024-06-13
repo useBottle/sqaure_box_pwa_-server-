@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 dotenv.config();
 
@@ -12,14 +12,8 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
     const result = response.data;
     res.status(200).send(result);
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError;
-      res.status(axiosError.response?.status ?? 500).send();
-      console.error("error =", axiosError.response?.status);
-    } else {
-      res.status(500).send("An unexpected error occurred");
-      console.error("Non-axios error occurred", error);
-    }
+    console.error("Error occurred", error);
+    res.status(500).send("An unexpected error occurred");
   }
 });
 
