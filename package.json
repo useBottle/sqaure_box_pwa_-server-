@@ -51,7 +51,7 @@
     "express": "^4.19.2",
     "iconv": "^3.0.1",
     "jsdom": "^24.0.0",
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.7.0",
     "morgan": "^1.10.0",
     "node-fetch": "^3.3.2",
     "socket.io": "^4.7.5"

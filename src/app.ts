@@ -5,14 +5,12 @@ import morgan from "morgan";
 import getNewsAPI from "./routes/getNewsAPI.js";
 import getKeywordsAPI from "./routes/getKeywordsAPI.js";
 import getYoutubeAPI from "./routes/getYoutubeAPI.js";
+import signUp from "./routes/signUp.js";
 
 dotenv.config();
 
 const app: Application = express();
 const port: number = Number(process.env.PORT as string) || 8080;
-app.listen(port, (): void => {
-  console.log(`Running server on http://localhost:${port}`);
-});
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -26,3 +24,8 @@ app.use(cors(corsOptions));
 app.use("/getNewsAPI", getNewsAPI);
 app.use("/getKeywordsAPI", getKeywordsAPI);
 app.use("/getYoutubeAPI", getYoutubeAPI);
+app.use("/signup", signUp);
+
+app.listen(port, (): void => {
+  console.log(`Running server on http://localhost:${port}`);
+});
