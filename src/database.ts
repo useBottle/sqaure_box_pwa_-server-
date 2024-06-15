@@ -1,19 +1,19 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
 const uri: string = process.env.MONGODB_URI;
 
 declare global {
-  var _mongo: Promise<MongoClient> | undefined;
+  var _mongoose: Promise<typeof mongoose> | undefined;
 }
 
-let connectDB: Promise<MongoClient>;
+let connectDB: Promise<typeof mongoose>;
 
 if (process.env.NODE_ENV === "development") {
-  if (!globalThis._mongo) {
-    globalThis._mongo = new MongoClient(uri).connect();
+  if (!globalThis._mongoose) {
+    globalThis._mongoose = mongoose.connect(uri, { dbName: "Square_Box" });
   }
-  connectDB = globalThis._mongo;
+  connectDB = globalThis._mongoose;
 } else {
-  connectDB = new MongoClient(uri).connect();
+  connectDB = mongoose.connect(uri, { dbName: "Square_Box" });
 }
 export { connectDB };
