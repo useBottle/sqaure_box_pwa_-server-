@@ -7,6 +7,7 @@ import getKeywordsAPI from "./routes/getKeywordsAPI.js";
 import getYoutubeAPI from "./routes/getYoutubeAPI.js";
 import signUp from "./routes/signUp.js";
 import idCheck from "./routes/idCheck.js";
+import login from "./routes/login.js";
 
 dotenv.config();
 
@@ -25,8 +26,10 @@ app.use(cors(corsOptions));
 app.use("/getNewsAPI", getNewsAPI);
 app.use("/getKeywordsAPI", getKeywordsAPI);
 app.use("/getYoutubeAPI", getYoutubeAPI);
-app.use("/signup", signUp);
-app.use("/idcheck", idCheck);
+app.use("/signUp", signUp);
+app.use("/idCheck", idCheck);
+app.use("/logIn", login);
+app.use("/refreshToken", login);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);
