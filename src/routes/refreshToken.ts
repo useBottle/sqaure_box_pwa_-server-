@@ -12,12 +12,12 @@ router.post("/refreshToken", (req: Request, res: Response) => {
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string);
-
     const accessToken = jwt.sign({ username: (decoded as any).username }, process.env.ACCESS_TOKEN_SECRET as string, {
       expiresIn: "1h",
     });
 
-    res.json({ accessToken });
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true });
+    res.json({ message: "Access token refreshed successfully" });
   } catch (err) {
     return res.status(403).json("Invalid refresh token.");
   }

@@ -31,11 +31,15 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
       return res.status(500).json("ACCESS_TOKEN_SECRET is not defined");
     }
 
-    const token = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1h" });
+    const accessToken = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1h" });
     const refreshToken = jwt.sign({ username: idValue }, process.env.REFRESH_TOKEN_SECRET as string, {
       expiresIn: "7d",
     });
-    return res.status(200).json({ token, refreshToken });
+
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true });
+
+    return res.status(200).json({ message: "Logged in successfully" });
   } catch (error: unknown) {
     console.error(error);
     return res.status(500).send("An unexpected error occurred");

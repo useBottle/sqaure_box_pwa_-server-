@@ -7,7 +7,7 @@ export interface CustomRequest extends Request {
 
 const authenticateJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // 'Bearer <token>' 형식을 처리
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(403).json("A token is required for authentication");
