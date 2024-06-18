@@ -46,7 +46,7 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
   }
 });
 
-router.get("/login", authenticateJWT, (req: Request, res: Response) => {
+router.get("/check-token", authenticateJWT, (req: Request, res: Response) => {
   const customReq = req as CustomRequest;
   res.json({ message: `Hello, ${customReq.user.username}` });
 });
