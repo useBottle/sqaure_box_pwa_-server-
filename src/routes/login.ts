@@ -9,9 +9,22 @@ const router = express.Router();
 
 router.put("/", async (req: Request, res: Response): Promise<Response | void> => {
   const { idValue, passwordValue } = req.body;
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!idValue || !passwordValue) {
     return res.status(400).json("ID or password is empty.");
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string) as { username: string };
+      if (decoded.username === idValue) {
+        return res.status(200).json({ message: "Already logged in with a valid token" });
+      }
+    } catch (error: unknown) {
+      console.error("Invalid or expired token, proceeding with login");
+    }
   }
 
   try {
@@ -46,7 +59,7 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
   }
 });
 
-router.get("/check-token", authenticateJWT, (req: Request, res: Response) => {
+router.get("/checkToken", authenticateJWT, (req: Request, res: Response) => {
   const customReq = req as CustomRequest;
   res.json({ message: `Hello, ${customReq.user.username}` });
 });
