@@ -3,7 +3,6 @@ import express, { Request, Response } from "express";
 import { connectDB } from "../database.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
-import authenticateJWT, { CustomRequest } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -57,11 +56,6 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
     console.error(error);
     return res.status(500).send("An unexpected error occurred");
   }
-});
-
-router.get("/checkToken", authenticateJWT, (req: Request, res: Response) => {
-  const customReq = req as CustomRequest;
-  res.json({ message: `Hello, ${customReq.user.username}` });
 });
 
 export default router;

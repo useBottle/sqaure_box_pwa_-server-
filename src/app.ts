@@ -9,6 +9,7 @@ import signUp from "./routes/signUp.js";
 import idCheck from "./routes/idCheck.js";
 import login from "./routes/login.js";
 import refreshToken from "./routes/refreshToken.js";
+import checkToken from "./routes/checkToken.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use("/signUp", signUp);
 app.use("/idCheck", idCheck);
 app.use("/logIn", login);
 app.use("/refreshToken", refreshToken);
+app.use("/checkToken", checkToken);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);
