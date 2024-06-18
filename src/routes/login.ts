@@ -48,8 +48,8 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
       expiresIn: "7d",
     });
 
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true });
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 360000 });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ message: "Logged in successfully" });
   } catch (error: unknown) {
