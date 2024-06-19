@@ -43,13 +43,16 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
       return res.status(500).json("ACCESS_TOKEN_SECRET is not defined");
     }
 
-    const accessToken = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1h" });
+    const accessToken = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, {
+      expiresIn: "10s",
+    });
     const refreshToken = jwt.sign({ username: idValue }, process.env.REFRESH_TOKEN_SECRET as string, {
       expiresIn: "7d",
     });
 
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 360000 });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
+    res.cookie("accessToken", accessToken, { httpOnly: false, secure: false, maxAge: 10000 });
+    res.cookie("refreshToken", refreshToken, { httpOnly: false, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ message: "Logged in successfully" });
   } catch (error: unknown) {

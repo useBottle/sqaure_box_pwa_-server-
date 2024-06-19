@@ -10,6 +10,7 @@ import idCheck from "./routes/idCheck.js";
 import login from "./routes/login.js";
 import refreshToken from "./routes/refreshToken.js";
 import checkToken from "./routes/checkToken.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const app: Application = express();
 const port: number = Number(process.env.PORT as string) || 8080;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 const corsOptions = {

@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-router.post("/refreshToken", (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+router.get("/", (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json("Refresh token is required.");
@@ -16,9 +16,11 @@ router.post("/refreshToken", (req: Request, res: Response) => {
       expiresIn: "1h",
     });
 
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 360000 });
-    res.json({ message: "Access token refreshed successfully" });
-  } catch (err) {
+    // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: false, maxAge: 360000 });
+    res.status(200).json({ message: "Access token refreshed successfully" });
+  } catch (error) {
+    console.error("An unexpected error occurred");
     return res.status(403).json("Invalid refresh token.");
   }
 });
