@@ -98,37 +98,23 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
         const fetchData = async (url: string): Promise<string | void> => {
           try {
             const response = await axios.get(url, { responseType: "arraybuffer" });
-            const contentType = response.headers["content-type"];
             let charset = "UTF-8";
 
-            // conetenetType 에 따라 문서에 적용된 인코딩 방식을 charset 에 할당.
-            if (
-              [
-                "text/html; charset=utf-8",
-                "text/html; charset=utf_8",
-                "text/html; charset=UTF_8",
-                "text/html; charset=UTF-8",
-              ].includes(contentType)
-            ) {
-              charset = "UTF-8";
-            } else if (
-              [
-                "text/html",
-                "text/html; charset=euc_kr",
-                "text/html; charset=euc-kr",
-                "text/html; charset=EUC_KR",
-                "text/html; charset=EUC-KR",
-              ].includes(contentType)
-            ) {
-              charset = "EUC-KR";
-            }
+            const $ = cheerio.load(response.data.toString("binary"), { decodeEntities: false });
 
-            const $ = cheerio.load(response.data as string);
-            const metaTags = $("meta");
+            // <meta charset="..."> 태그에서 charset 추출
             const metaCharset = $("meta[charset]").attr("charset");
-
             if (metaCharset) {
-              charset = metaCharset;
+              charset = metaCharset.toUpperCase();
+            } else {
+              // <meta http-equiv="Content-Type" content="text/html; charset=..."> 태그에서 charset 추출
+              const metaContentType = $('meta[http-equiv="Content-Type"]').attr("content");
+              if (metaContentType) {
+                const match = metaContentType.match(/charset=([^;]+)/);
+                if (match && match[1]) {
+                  charset = match[1].toUpperCase();
+                }
+              }
             }
 
             // 문서에 지정된 인코딩 방식에 따라 iconv 로 디코딩.
@@ -136,6 +122,8 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const decodedData = iconv.decode(dataBuffer, charset);
 
             const imagePattern = /\.(jpg|jpeg|gif|png)/i;
+
+            const metaTags = $("meta");
 
             metaTags.each((_: number, tag: cheerio.Element) => {
               const contentValue = $(tag).attr("content");
@@ -150,7 +138,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             const document = dom.window.document;
 
             const tagToRemove = document.querySelectorAll(
-              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info, .reaction_btn_wrap, .option_group, .v_topimg_wrap, .divtext2, .inner-subtitle, .news_write_info_group, .photojournal",
+              "h1, h2, h3, h4, h5, h6, .heading, .title, a, span, ul, li, table, figcaption, .reveal-container, .date-repoter, .copy_info, .reaction_btn_wrap, .option_group, .v_topimg_wrap, .divtext2, .inner-subtitle, .news_write_info_group, .photojournal, .article_summary, .summary_area, .article-head-sub, .caption, .writer, .subtitle",
             );
             tagToRemove.forEach((link) => link.parentNode?.removeChild(link));
 
