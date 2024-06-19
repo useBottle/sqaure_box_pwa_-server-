@@ -1,3 +1,4 @@
+import iconv from "iconv-lite";
 import { Readability } from "@mozilla/readability";
 import axios from "axios";
 import cheerio from "cheerio";
@@ -117,9 +118,8 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
             }
 
             // 문서에 지정된 인코딩 방식에 따라 iconv 로 디코딩.
-            const uint8array = new Uint8Array(response.data);
-            const textDecoder = new TextDecoder(charset);
-            const decodedData = textDecoder.decode(uint8array);
+            const dataBuffer = Buffer.from(response.data, "binary");
+            const decodedData = iconv.decode(dataBuffer, charset);
 
             const imagePattern = /\.(jpg|jpeg|gif|png)/i;
 
