@@ -17,7 +17,7 @@ router.get("/", (req: Request, res: Response) => {
     });
 
     // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: false, maxAge: 360000 });
+    res.cookie("accessToken", accessToken, { httpOnly: false, secure: false, maxAge: 3600000 });
     res.status(200).json({ message: "Access token refreshed successfully" });
   } catch (error) {
     console.error("An unexpected error occurred");

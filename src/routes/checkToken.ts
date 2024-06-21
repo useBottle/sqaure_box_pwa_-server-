@@ -12,6 +12,7 @@ router.get("/", async (req: Request, res: Response): Promise<void | Response> =>
 
   try {
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string);
+    return res.status(200).json("Access token is valid.");
   } catch (error) {
     console.error("An unexpected error occurred", error);
     return res.status(401).json("Invalid token");

@@ -11,6 +11,7 @@ import login from "./routes/login.js";
 import refreshToken from "./routes/refreshToken.js";
 import checkToken from "./routes/checkToken.js";
 import cookieParser from "cookie-parser";
+import addNewsData from "./routes/addNewsData.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/idCheck", idCheck);
 app.use("/logIn", login);
 app.use("/refreshToken", refreshToken);
 app.use("/checkToken", checkToken);
+app.use("/addNewsData", addNewsData);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);
