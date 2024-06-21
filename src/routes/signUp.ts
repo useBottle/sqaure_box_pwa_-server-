@@ -37,11 +37,11 @@ router.post("/", async (req: Request, res: Response): Promise<Response> => {
       console.log("ID is already exist.");
       return res.status(409).json("ID is already exist.");
     }
-    const result = await user.save();
-    return res.status(200).json(result);
+    await user.save();
+    return res.status(200).json("Successfully stored user data.");
   } catch (error: unknown) {
     console.error("Error occurred", error);
-    return res.status(500).send("An unexpected error occurred");
+    return res.status(500).send("An unexpected error occurred.");
   }
 });
 
