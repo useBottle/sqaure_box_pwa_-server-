@@ -13,6 +13,7 @@ import checkToken from "./routes/checkToken.js";
 import cookieParser from "cookie-parser";
 import addNewsData from "./routes/addNewsData.js";
 import addYoutubeData from "./routes/addYoutubeData.js";
+import findData from "./routes/findData.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use("/refreshToken", refreshToken);
 app.use("/checkToken", checkToken);
 app.use("/addNewsData", addNewsData);
 app.use("/addYoutubeData", addYoutubeData);
+app.use("/findData", findData);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);
