@@ -18,7 +18,6 @@ router.post("/", async (req: Request, res: Response): Promise<Response | void> =
     videoId: currentYoutube.id.videoId,
     thumbnail: currentYoutube.snippet.thumbnails[0].url,
     title: currentYoutube.snippet.title,
-    timestamp: currentYoutube.snippet.timestamp,
     channelHandle: currentYoutube.snippet.channelHandle,
     channelThumbnail: currentYoutube.snippet.channelThumbnails[0].url,
     channelTitle: currentYoutube.snippet.channelTitle,
