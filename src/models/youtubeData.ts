@@ -15,6 +15,10 @@ const youtubeDataSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    thumbnail: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
