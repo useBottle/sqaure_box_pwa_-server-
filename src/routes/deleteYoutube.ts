@@ -1,18 +1,18 @@
 import express, { Request, Response } from "express";
 import { connectDB } from "../database.js";
-import NewsData from "../models/newsData.js";
 import { ObjectId } from "mongodb";
+import YoutubeData from "../models/youtubeData.js";
 
 const router = express.Router();
 
 router.put("/", async (req: Request, res: Response) => {
-  const { newsId } = req.body;
-  const idValue = new ObjectId(newsId);
-  console.log(newsId);
+  const { youtubeId } = req.body;
+  const idValue = new ObjectId(youtubeId);
+  console.log(youtubeId);
 
   try {
     await connectDB;
-    const deleteResult = await NewsData.deleteOne({ _id: idValue });
+    const deleteResult = await YoutubeData.deleteOne({ _id: idValue });
     if (deleteResult.deletedCount === 1) {
       return res.status(200).json("The news data has been successfully deleted.");
     } else {
