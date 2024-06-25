@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.post("/", async (req: Request, res: Response): Promise<Response | void> => {
   const { bookMarkNewsData, username } = req.body;
-  console.log(bookMarkNewsData, username);
 
   if (!bookMarkNewsData || !username) {
     res.status(400).json("Username or news data is empty.");

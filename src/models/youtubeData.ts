@@ -23,10 +23,6 @@ const youtubeDataSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    timestamp: {
-      type: String,
-      required: true,
-    },
     channelHandle: {
       type: String,
       required: true,

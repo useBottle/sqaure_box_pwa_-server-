@@ -14,6 +14,7 @@ import cookieParser from "cookie-parser";
 import addNewsData from "./routes/addNewsData.js";
 import addYoutubeData from "./routes/addYoutubeData.js";
 import findData from "./routes/findData.js";
+import deleteNews from "./routes/deleteNews.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/checkToken", checkToken);
 app.use("/addNewsData", addNewsData);
 app.use("/addYoutubeData", addYoutubeData);
 app.use("/findData", findData);
+app.use("/deleteNews", deleteNews);
 
 app.listen(port, (): void => {
   console.log(`Running server on http://localhost:${port}`);
