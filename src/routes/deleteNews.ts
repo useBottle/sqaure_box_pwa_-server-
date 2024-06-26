@@ -8,7 +8,6 @@ const router = express.Router();
 router.put("/", async (req: Request, res: Response) => {
   const { newsId } = req.body;
   const idValue = new ObjectId(newsId);
-  console.log(newsId);
 
   try {
     await connectDB;

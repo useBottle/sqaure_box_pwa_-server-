@@ -6,7 +6,7 @@ import { findContent } from "../types/types.js";
 
 const router = express.Router();
 
-router.put("/", async (req: Request, res: Response) => {
+router.put("/", async (req: Request, res: Response): Promise<Response | void> => {
   const username: string = req.body.username;
   const contents: findContent = {
     newsData: [],

@@ -8,13 +8,12 @@ const router = express.Router();
 router.put("/", async (req: Request, res: Response) => {
   const { youtubeId } = req.body;
   const idValue = new ObjectId(youtubeId);
-  console.log(youtubeId);
 
   try {
     await connectDB;
     const deleteResult = await YoutubeData.deleteOne({ _id: idValue });
     if (deleteResult.deletedCount === 1) {
-      return res.status(200).json("The news data has been successfully deleted.");
+      return res.status(200).json("The youtube data has been successfully deleted.");
     } else {
       return res.status(404).json("Document not found.");
     }
