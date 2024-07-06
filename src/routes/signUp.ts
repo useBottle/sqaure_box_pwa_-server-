@@ -8,7 +8,6 @@ const router = express.Router();
 router.post("/", async (req: Request, res: Response): Promise<Response> => {
   const { idValue, passwordValue } = req.body;
   const idPattern = /^[A-Za-z0-9]{6,20}$/;
-  const passwordPattern = /^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/;
   const idValid = idPattern.test(idValue);
 
   if (!idValue || !idValid) {
