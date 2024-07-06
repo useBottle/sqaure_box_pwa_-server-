@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      match: /^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{6,}$/,
     },
   },
   { collection: "users" },
