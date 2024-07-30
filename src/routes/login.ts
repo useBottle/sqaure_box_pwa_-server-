@@ -15,14 +15,15 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
     return res.status(400).json("ID or password is empty.");
   }
 
+  // 토큰으로 사용자가 입력한 ID 검증.
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string) as { username: string };
       if (decoded.username === idValue) {
-        return res.status(200).json({ message: "Already logged in with a valid token" });
+        return res.status(200).json({ message: "ID and token match." });
       }
     } catch (error: unknown) {
-      console.error("Invalid or expired token, proceeding with login");
+      console.error("Invalid or expired token, proceeding with login.");
     }
   }
 
