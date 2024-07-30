@@ -15,7 +15,9 @@ const client_secret = process.env.NAVER_API_CLIENT_SECRET;
 const numberOfArticles = 10;
 const wayOfSort = ["sim", "date"];
 
-const stripHtml = (html: string, document: Document): string => {
+const stripHtml = (html: string): string => {
+  const dom = new JSDOM();
+  const document = dom.window.document;
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = html;
   return tempDiv.textContent || tempDiv.innerText;
@@ -45,8 +47,6 @@ const cleanText = (text: string): string | void => {
 };
 
 router.put("/", async (req: Request, res: Response): Promise<void> => {
-  const { inputValue } = req.body;
-
   const query = encodeURI(req.body.inputValue);
   const api_url = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${numberOfArticles}&start=1&sort=${wayOfSort[0]}`;
 
@@ -59,9 +59,6 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
     });
 
     const data = response.data.items;
-
-    const dom = new JSDOM(response.data);
-    const document = dom.window.document;
 
     const articleContents = await Promise.all(
       data.map(async (item: Item) => {
@@ -81,11 +78,11 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
         const imageUrls: string[] = [];
         let articleText;
-        const title = stripHtml(item.title, document);
-        const description = stripHtml(item.description, document);
-        const pubDate = stripHtml(changedDate, document);
-        const originallink = stripHtml(item.originallink, document);
-        const link = stripHtml(item.link, document);
+        const title = stripHtml(item.title);
+        const description = stripHtml(item.description);
+        const pubDate = stripHtml(changedDate);
+        const originallink = stripHtml(item.originallink);
+        const link = stripHtml(item.link);
 
         const fetchData = async (url: string): Promise<string | void> => {
           try {
@@ -136,7 +133,7 @@ router.put("/", async (req: Request, res: Response): Promise<void> => {
 
             const reader = new Readability(document);
             const article = reader.parse();
-            const encodedText = article ? cleanText(stripHtml(article.textContent, document)) : null;
+            const encodedText = article ? cleanText(stripHtml(article.textContent)) : null;
             articleText = encodedText !== null && encodedText;
           } catch (error) {
             console.error(`Error fetching Open Graph image or Text from ${url}:`, error);
