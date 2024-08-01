@@ -7,7 +7,9 @@
   "author": "Byung Ho Jung",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently \"nodemon dist/app.js\" \"tsc -w\""
+    "start": "concurrently \"nodemon dist/app.js\" \"tsc -w\"",
+    "build": "tsc",
+    "serve": "node dist/app.js"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
@@ -29,7 +31,6 @@
     "globals": "^15.0.0",
     "nodemon": "^3.1.0",
     "prettier": "3.2.5",
-    "ts-node": "^10.9.2",
     "typescript": "*"
   },
   "dependencies": {
@@ -60,8 +61,6 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.1",
-    "morgan": "^1.10.0",
-    "node-fetch": "^3.3.2",
-    "socket.io": "^4.7.5"
+    "morgan": "^1.10.0"
   }
 }
