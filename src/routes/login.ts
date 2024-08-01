@@ -52,8 +52,8 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
     });
 
     // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
-    res.cookie("accessToken", accessToken, { httpOnly: false, secure: false, maxAge: 360000 });
-    res.cookie("refreshToken", refreshToken, { httpOnly: false, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 360000 });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ message: "Logged in successfully" });
   } catch (error: unknown) {
