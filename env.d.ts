@@ -9,5 +9,7 @@ declare namespace NodeJS {
     MONGODB_URI: string;
     ACCESS_TOKEN_SECRET: string;
     REFRESH_TOKEN_SECRET: string;
+    NODE_ENV: string;
+    RUNNING_SERVER: string;
   }
 }

@@ -47,5 +47,5 @@ app.use("/deleteNews", deleteNews);
 app.use("/deleteYoutube", deleteYoutube);
 
 app.listen(port, (): void => {
-  console.log(`Running server on http://localhost:${port}`);
+  console.log(`Running server on ${process.env.RUNNING_SERVER}${port}`);
 });
