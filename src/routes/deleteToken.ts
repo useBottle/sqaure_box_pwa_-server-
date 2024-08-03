@@ -14,8 +14,8 @@ router.get("/", (req: Request, res: Response) => {
   try {
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string);
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string);
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    res.cookie("accessToken", "", { expires: new Date(0) });
+    res.cookie("refreshToken", "", { expires: new Date(0) });
     return res.status(200).json({ message: "The tokens has benn deleted." });
   } catch (error) {
     console.error("An unexpected error occurred", error);
