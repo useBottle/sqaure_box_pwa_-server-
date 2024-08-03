@@ -8,17 +8,16 @@ const router = express.Router();
 
 router.put("/", async (req: Request, res: Response): Promise<Response | void> => {
   const { idValue, passwordValue } = req.body;
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const accessToken = req.cookies.accessToken;
 
   if (!idValue || !passwordValue) {
     return res.status(400).json("ID or password is empty.");
   }
 
   // 토큰으로 사용자가 입력한 ID 검증.
-  if (token) {
+  if (accessToken) {
     try {
-      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string) as { username: string };
+      const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string) as { username: string };
       if (decoded.username === idValue) {
         return res.status(200).json({ message: "ID and token match." });
       }
@@ -53,7 +52,7 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
 
     const isProduction = process.env.NODE_ENV === "product";
 
-    // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
+    // 실행 환경에 따라 토큰 보안 설정 변경.
     res.cookie("accessToken", accessToken, {
       httpOnly: isProduction,
       secure: isProduction,

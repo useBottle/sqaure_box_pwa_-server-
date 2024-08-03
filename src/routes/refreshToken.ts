@@ -18,14 +18,14 @@ router.get("/", (req: Request, res: Response) => {
 
     const isProduction = process.env.NODE_ENV === "product";
 
-    // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
+    // 실행 환경에 따라 토큰 보안 설정 변경.
     res.cookie("accessToken", accessToken, {
       httpOnly: isProduction,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax",
       maxAge: 3600000,
     });
-    res.status(200).json({ message: "Access token refreshed successfully" });
+    res.status(200).json({ message: "Access token refreshed successfully", username: decoded.username });
   } catch (error) {
     console.error("An unexpected error occurred");
     return res.status(403).json("Invalid refresh token.");
