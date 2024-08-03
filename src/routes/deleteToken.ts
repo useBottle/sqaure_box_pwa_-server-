@@ -11,11 +11,23 @@ router.get("/", (req: Request, res: Response) => {
     return res.status(403).json("A token is required for authentication");
   }
 
+  const isProduction = process.env.NODE_ENV === "product";
+
   try {
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string);
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string);
-    res.cookie("accessToken", "", { expires: new Date(0) });
-    res.cookie("refreshToken", "", { expires: new Date(0) });
+    res.clearCookie("accessToken", {
+      httpOnly: isProduction,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 0,
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: isProduction,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 0,
+    });
     return res.status(200).json({ message: "The tokens has benn deleted." });
   } catch (error) {
     console.error("An unexpected error occurred", error);
