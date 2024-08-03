@@ -16,6 +16,7 @@ import addYoutubeData from "./routes/addYoutubeData.js";
 import findData from "./routes/findData.js";
 import deleteNews from "./routes/deleteNews.js";
 import deleteYoutube from "./routes/deleteYoutube.js";
+import deleteToken from "./routes/deleteToken.js";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/addYoutubeData", addYoutubeData);
 app.use("/findData", findData);
 app.use("/deleteNews", deleteNews);
 app.use("/deleteYoutube", deleteYoutube);
+app.use("/deleteToken", deleteToken);
 
 app.listen(port, (): void => {
   if (process.env.NODE_ENV === "development") {
