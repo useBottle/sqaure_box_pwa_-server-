@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "concurrently \"nodemon dist/app.js\" \"tsc -w\"",
-    "build": "tsc",
+    "build": "npx tsc",
     "serve": "node dist/app.js"
   },
   "devDependencies": {
