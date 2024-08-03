@@ -51,17 +51,19 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
       expiresIn: "7d",
     });
 
+    const isProduction = process.env.NODE_ENV === "product";
+
     // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
     res.cookie("accessToken", accessToken, {
-      httpOnly: process.env.NODE_ENV === "product",
-      secure: process.env.NODE_ENV === "product",
-      sameSite: "none",
+      httpOnly: isProduction,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 360000,
     });
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: process.env.NODE_ENV === "product",
-      secure: process.env.NODE_ENV === "product",
-      sameSite: "none",
+      httpOnly: isProduction,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

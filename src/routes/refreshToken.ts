@@ -20,7 +20,7 @@ router.get("/", (req: Request, res: Response) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: process.env.NODE_ENV === "product",
       secure: process.env.NODE_ENV === "product",
-      sameSite: "none",
+      // sameSite: "none",
       maxAge: 3600000,
     });
     res.status(200).json({ message: "Access token refreshed successfully" });
