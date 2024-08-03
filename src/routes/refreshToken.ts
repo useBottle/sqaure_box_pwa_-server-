@@ -16,11 +16,13 @@ router.get("/", (req: Request, res: Response) => {
       expiresIn: "1h",
     });
 
+    const isProduction = process.env.NODE_ENV === "product";
+
     // 로컬 개발 환경에서는 httpOnly, secure 를 false 로 설정.
     res.cookie("accessToken", accessToken, {
-      httpOnly: process.env.NODE_ENV === "product",
-      secure: process.env.NODE_ENV === "product",
-      // sameSite: "none",
+      httpOnly: isProduction,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 3600000,
     });
     res.status(200).json({ message: "Access token refreshed successfully" });
