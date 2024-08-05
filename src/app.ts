@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
@@ -33,11 +33,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use((req: Request, res: Response, next) => {
-  res.header("Access-Control-Allow-Origin", process.env.REQUEST_DOMAIN);
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
 app.use("/getNewsAPI", getNewsAPI);
 app.use("/getKeywordsAPI", getKeywordsAPI);
 app.use("/getYoutubeAPI", getYoutubeAPI);
