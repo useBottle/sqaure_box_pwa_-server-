@@ -56,13 +56,13 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
     res.cookie("accessToken", accessToken, {
       httpOnly: isProduction,
       secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: isProduction ? "lax" : "none",
       maxAge: 360000,
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: isProduction,
       secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: isProduction ? "lax" : "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
