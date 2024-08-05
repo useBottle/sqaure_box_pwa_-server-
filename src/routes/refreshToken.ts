@@ -22,7 +22,7 @@ router.get("/", (req: Request, res: Response) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: isProduction,
       secure: isProduction,
-      sameSite: isProduction ? "lax" : "none",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 3600000,
     });
     res.status(200).json({ message: "Access token refreshed successfully", username: decoded.username });
