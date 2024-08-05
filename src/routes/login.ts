@@ -50,7 +50,7 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
       expiresIn: "7d",
     });
 
-    const isProduction = process.env.NODE_ENV === "product";
+    const isProduction = process.env.NODE_ENV === "production";
 
     // 실행 환경에 따라 토큰 보안 설정 변경.
     res.cookie("accessToken", accessToken, {
