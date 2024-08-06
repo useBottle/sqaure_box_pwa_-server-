@@ -11,7 +11,7 @@ router.get("/", (req: Request, res: Response) => {
     return res.status(403).json("A token is required for authentication");
   }
 
-  const isProduction = process.env.NODE_ENV === "product";
+  const isProduction = process.env.NODE_ENV === "production";
 
   try {
     jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string);
