@@ -51,7 +51,7 @@ app.use("/deleteToken", deleteToken);
 app.listen(port, (): void => {
   if (process.env.NODE_ENV === "development") {
     console.log(`Running server on http://localhost:${port}`);
-  } else if (process.env.NODE_ENV === "product") {
+  } else if (process.env.NODE_ENV === "production") {
     console.log(`Running server on ${process.env.RUNNING_SERVER}`);
   }
 });
