@@ -29,26 +29,24 @@ router.put("/", async (req: Request, res: Response): Promise<Response | void> =>
   try {
     await connectDB;
     const userInfo = await User.findOne({ id: idValue });
+    const isPasswordValid = userInfo && (await bcrypt.compare(passwordValue, userInfo.password));
+    let accessToken;
+    let refreshToken;
 
     if (!userInfo) {
       return res.status(404).json("User not found.");
-    }
-
-    const isPasswordValid = await bcrypt.compare(passwordValue, userInfo.password);
-    if (!isPasswordValid) {
+    } else if (userInfo && !isPasswordValid) {
       return res.status(401).json("Invalid password");
-    }
-
-    if (!process.env.ACCESS_TOKEN_SECRET) {
+    } else if (!process.env.ACCESS_TOKEN_SECRET) {
       return res.status(500).json("ACCESS_TOKEN_SECRET is not defined");
+    } else if (userInfo && isPasswordValid) {
+      accessToken = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, {
+        expiresIn: "1h",
+      });
+      refreshToken = jwt.sign({ username: idValue }, process.env.REFRESH_TOKEN_SECRET as string, {
+        expiresIn: "7d",
+      });
     }
-
-    const accessToken = jwt.sign({ username: idValue }, process.env.ACCESS_TOKEN_SECRET as string, {
-      expiresIn: "1h",
-    });
-    const refreshToken = jwt.sign({ username: idValue }, process.env.REFRESH_TOKEN_SECRET as string, {
-      expiresIn: "7d",
-    });
 
     const isProduction = process.env.NODE_ENV === "production";
 
