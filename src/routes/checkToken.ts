@@ -11,7 +11,6 @@ router.get("/", (req: Request, res: Response) => {
       return res.status(403).json("A token is required for authentication");
     } else if (accessToken) {
       const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string) as JwtPayload;
-      jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string);
       return res.status(200).json({ message: "Access token is valid.", username: decoded.username });
     }
   } catch (error) {
