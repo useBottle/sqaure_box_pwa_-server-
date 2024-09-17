@@ -2,7 +2,7 @@
   "type": "module",
   "name": "square_box_pwa_server",
   "version": "1.0.0",
-  "description": "Node.js, Express server for Custom Board PWA Client",
+  "description": "Node.js, Express server for Square Box PWA Client",
   "main": "dist/app.js",
   "author": "Byung Ho Jung",
   "license": "MIT",
